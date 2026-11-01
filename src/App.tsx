@@ -1,64 +1,66 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import LoginScreen from './components/LoginScreen';
-import RegisterScreen from './components/RegisterScreen';
-import SignupSuccessScreen from './components/SignupSuccessScreen';
-import WelcomeScreen from './components/WelcomeScreen';
-import PersonalInfoScreen from './components/PersonalInfoScreen';
+import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
 
-type ScreenType = 'Login' | 'Register' | 'SignupSuccess' | 'Welcome' | 'PersonalInfo';
+import WelcomeScreen from './screens/auth/WelcomeScreen';
+import LoginScreen from './screens/auth/LoginScreen';
+import RegisterScreen from './screens/auth/RegisterScreen';
+import SignupSuccessScreen from './screens/auth/SignupSuccessScreen';
+import ResetPasswordScreen from './screens/auth/ResetPasswordScreen';
+import PersonalInfoScreen from './screens/profile/PersonalInfoScreen';
+import Homepage from './screens/auth/Homepage';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('Login');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'login' | 'register' | 'success' | 'reset_password' | 'info' | 'home'>('welcome');
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={currentScreen === 'welcome' ? 'light-content' : 'dark-content'} />
+
+      {currentScreen === 'welcome' && (
+        <WelcomeScreen onNavigateToLogin={() => setCurrentScreen('login')} />
+      )}
       
-      {/* 1. Кіру экраны */}
-      {currentScreen === 'Login' && (
+      {currentScreen === 'login' && (
         <LoginScreen 
-          onNavigateToRegister={() => setCurrentScreen('Register')}
-          onLoginSuccess={() => setCurrentScreen('Welcome')} 
+          onLoginSuccess={() => setCurrentScreen('info')} 
+          onForgotPassword={() => setCurrentScreen('reset_password')}
+          onRegister={() => setCurrentScreen('register')}
+          onBack={() => setCurrentScreen('welcome')}
         />
       )}
-      
-      {/* 2. Тіркелу экраны */}
-      {currentScreen === 'Register' && (
+
+      {currentScreen === 'register' && (
         <RegisterScreen 
-          onNavigateToLogin={() => setCurrentScreen('Login')}
-          onRegisterSuccess={() => setCurrentScreen('SignupSuccess')} 
+          onRegisterSuccess={() => setCurrentScreen('success')} 
+          onBack={() => setCurrentScreen('login')}
         />
       )}
 
-      {/* 3. Тіркелу сәтті аяқталды деген құттықтау экраны */}
-      {currentScreen === 'SignupSuccess' && (
-        <SignupSuccessScreen 
-          onNavigateToLogin={() => setCurrentScreen('Login')} 
-        />
+      {currentScreen === 'success' && (
+        <SignupSuccessScreen onContinue={() => setCurrentScreen('info')} />
       )}
 
-      {/* 4. Ұшақ күтіп алу экраны "Book Flight" */}
-      {currentScreen === 'Welcome' && (
-        <WelcomeScreen 
-          onStart={() => setCurrentScreen('PersonalInfo')} 
-        />
+      {currentScreen === 'reset_password' && (
+        <ResetPasswordScreen onBack={() => setCurrentScreen('login')} />
       )}
 
-      {/* 5. Жеке деректерді енгізу экраны */}
-      {currentScreen === 'PersonalInfo' && (
+      {currentScreen === 'info' && (
         <PersonalInfoScreen 
-          onBack={() => setCurrentScreen('Welcome')}
-          onConfirm={() => setCurrentScreen('Login')} 
+          onConfirm={() => setCurrentScreen('home')} 
+          onBack={() => setCurrentScreen('login')}
         />
       )}
 
-    </View>
+      {currentScreen === 'home' && (
+        <Homepage />
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: '#fff',
   },
 });
